@@ -7,11 +7,17 @@ test('Uses preloaded state to render', () => {
     expect(renderWithProviders(<App />, {
         preloadedState: {
             beers: {
-                value: initialBeer
+                value: initialBeer,
+                data: [
+                    1,
+                    2
+                ],
+                status: 'idle',
+                error: 'none'
             }
         }
     }).store.getState()).toStrictEqual({
-        "beers": {"value": 2}
+        "beers": {"value": 2, "data": [1,2], "status": "idle", "error": "none"}
     })
 })
 
@@ -20,7 +26,13 @@ test('checks the welcome message', () => {
     renderWithProviders(<App />, {
         preloadedState: {
             beers: {
-                value: initialBeer
+                value: initialBeer,
+                data: [
+                    1,
+                    2
+                ],
+                status: 'idle',
+                error: 'none'
             }
         }
     })

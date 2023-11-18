@@ -3,16 +3,22 @@ import beer from '../assets/beer-android-chrome-512x512.png'
 import '../App.css'
 import { InputAdornment, TextField } from '@mui/material'
 import { useAppSelector, useAppDispatch } from '../hooks'
-import { clearBeerData, getBeerByAmount, setBeerAmount } from '../features/beerSlice'
+import { clearBeerData, fetchBeerData, getBeerByAmount, setBeerAmount } from '../features/beerSlice'
+import { useNavigate } from 'react-router-dom'
 
 function App() {
   const [numError, setNumError] = useState(false)
   const [errorText, setErrorText] = useState('')
+  let navigate = useNavigate()
   const currentBeers = useAppSelector(state => state.beers.value)
   const dispatch = useAppDispatch()
 
   const dispatchBeers = () => {
-    dispatch(getBeerByAmount(currentBeers))
+    if(!numError) {
+      dispatch(getBeerByAmount(currentBeers))
+      dispatch(fetchBeerData(currentBeers)) 
+      navigate('/dashboard')
+    }  
   }
 
   /**
@@ -28,6 +34,9 @@ function App() {
     if(Number.isNaN(numBeers)) {
       setNumError(true)
       setErrorText('Sorry pal, numbers only')
+    } else if (numBeers > 100) {
+      setNumError(true)
+      setErrorText('Slow down friend, I can only carry a hundred at most!')
     } else {
       setNumError(false)
       setErrorText('')

@@ -4,6 +4,7 @@ import { PropsWithChildren } from "react"
 import { render } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { RootState, AppStore, setupStore } from "../store/store"
+import { MemoryRouter } from "react-router-dom"
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
     preloadedState?: PreloadedState<RootState>
@@ -19,7 +20,7 @@ export function renderWithProviders(
     } : ExtendedRenderOptions = {}
 ) {
     function Wrapper({ children } : PropsWithChildren<{}>): JSX.Element {
-        return <Provider store={store}>{children}</Provider>
+        return <Provider store={store}><MemoryRouter>{children}</MemoryRouter></Provider>
     }
 
     return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) }
