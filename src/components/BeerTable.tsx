@@ -33,6 +33,13 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+/**
+ * Styled MUI table that shows details on each beer and relevant information
+ * regarding them. It uses the fetched data from the user's initial dispatch
+ * for a certain number of beers
+ * 
+ * @returns a table showing the data the user reuquested
+ */
 export default function BeerTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -40,6 +47,7 @@ export default function BeerTable() {
 
   function createData(): Data[] {
     const beerEntries: Data[] = [];
+
     currentData.forEach((beer: BeerObject) => {
       beerEntries.push({
         name: beer.name,
@@ -51,6 +59,7 @@ export default function BeerTable() {
         yeast: beer.yeast,
       });
     });
+
     return beerEntries;
   }
 

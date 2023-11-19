@@ -14,6 +14,7 @@ import BeerTable from './BeerTable';
 import BeerMug from '../assets/beer-android-chrome-192x192.png';
 import { Card, ThemeProvider, createTheme } from '@mui/material';
 import ABVChart from './ABVChart';
+import IBUDoughnut from './IBUDoughnut';
 
 const theme = createTheme({
   palette: {
@@ -23,11 +24,17 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Main dashboard where the charts, tables, and graphs will live
+ * 
+ * @returns a JSX element that represents a dashboard of graphs
+ */
 export default function Dashboard() {
   const navigate = useNavigate();
   const currentBeers = useAppSelector((state) => state.beers.value);
   const dispatch = useAppDispatch();
 
+  // Handle navigation when user clicks on mug home button, clears data
   function navigateHome() {
     dispatch(clearBeerData());
     navigate('/');
@@ -64,6 +71,7 @@ export default function Dashboard() {
             </Card>
             <BeerTable />
             <ABVChart />
+            <IBUDoughnut/>
           </Box>
         </Container>
       </React.Fragment>

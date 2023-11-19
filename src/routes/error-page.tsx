@@ -1,5 +1,10 @@
 import { useRouteError } from 'react-router-dom';
 
+/**
+ * Landing page for errors that might occur in the app,
+ * mitigating issues where an empty page could be rendered
+ * or a page is not found
+ */
 export default function ErrorPage() {
   const error: unknown = useRouteError();
   console.error(error);
