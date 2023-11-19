@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -39,6 +39,12 @@ export default function Dashboard() {
     dispatch(clearBeerData());
     navigate('/');
   }
+
+  useEffect(() => {
+    if(currentBeers === 0) {
+      navigateHome();
+    }
+  }, [currentBeers])
 
   const trigger = useScrollTrigger({
     target: window,
