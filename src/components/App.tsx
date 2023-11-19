@@ -1,25 +1,25 @@
-import { useState } from 'react'
-import beer from '../assets/beer-android-chrome-512x512.png'
-import '../App.css'
-import { InputAdornment, TextField } from '@mui/material'
-import { useAppSelector, useAppDispatch } from '../hooks'
-import { clearBeerData, fetchBeerData, getBeerByAmount, setBeerAmount } from '../features/beerSlice'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import beer from '../assets/beer-android-chrome-512x512.png';
+import '../App.css';
+import { InputAdornment, TextField } from '@mui/material';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { clearBeerData, fetchBeerData, getBeerByAmount, setBeerAmount } from '../features/beerSlice';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
-  const [numError, setNumError] = useState(false)
-  const [errorText, setErrorText] = useState('')
-  let navigate = useNavigate()
-  const currentBeers = useAppSelector(state => state.beers.value)
-  const dispatch = useAppDispatch()
+  const [numError, setNumError] = useState(false);
+  const [errorText, setErrorText] = useState('');
+  let navigate = useNavigate();
+  const currentBeers = useAppSelector(state => state.beers.value);
+  const dispatch = useAppDispatch();
 
   const dispatchBeers = () => {
     if(!numError) {
-      dispatch(getBeerByAmount(currentBeers))
-      dispatch(fetchBeerData(currentBeers)) 
-      navigate('/dashboard')
+      dispatch(getBeerByAmount(currentBeers));
+      dispatch(fetchBeerData(currentBeers));
+      navigate('/dashboard');
     }  
-  }
+  };
 
   /**
    * Determine if user provided a number
@@ -72,6 +72,6 @@ function App() {
       </div>
     </>
   )
-}
+};
 
-export default App
+export default App;
