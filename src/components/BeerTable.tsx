@@ -7,6 +7,8 @@ import {
   TableCell,
   TableBody,
   TablePagination,
+  tableCellClasses,
+  styled,
 } from "@mui/material";
 import { useState } from "react";
 import { useAppSelector } from "../hooks";
@@ -20,6 +22,16 @@ const columns: readonly Column[] = [
   { id: 'hop', label: 'Hop', minWidth: 170 },
   { id: 'yeast', label: 'Yeast', minWidth: 170 },
 ];
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
 
 export default function BeerTable() {
   const [page, setPage] = useState(0);
@@ -60,13 +72,13 @@ export default function BeerTable() {
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell
+                <StyledTableCell
                   key={column.id}
                   align={column.align}
                   style={{ minWidth: column.minWidth }}
                 >
                   {column.label}
-                </TableCell>
+                </StyledTableCell>
               ))}
             </TableRow>
           </TableHead>
