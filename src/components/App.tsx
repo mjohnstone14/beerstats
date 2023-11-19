@@ -13,13 +13,14 @@ import { useNavigate } from 'react-router-dom';
  */
 function App() {
   const [numError, setNumError] = useState(false);
+  const [dispatchAllowed, setDispatchAllowed] = useState(false);
   const [errorText, setErrorText] = useState('');
   const navigate = useNavigate();
   const currentBeers = useAppSelector((state) => state.beers.value);
   const dispatch = useAppDispatch();
 
   const dispatchBeers = () => {
-    if (!numError) {
+    if (!numError && dispatchAllowed === true) {
       dispatch(fetchBeerData(currentBeers));
       navigate('/dashboard');
     }
@@ -47,6 +48,7 @@ function App() {
     } else {
       setNumError(false);
       setErrorText('');
+      setDispatchAllowed(true);
       dispatch(clearBeerData());
       dispatch(setBeerAmount(numBeers));
     }
