@@ -12,20 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { useEffect } from 'react';
 import { clearBeerData } from '../features/beerSlice';
-
-interface BeerObject {
-    alcohol: string,
-    blg: string,
-    brand: string,
-    hop: string,
-    ibu: string,
-    id: Number,
-    malts: string,
-    name: string,
-    style: string,
-    uid: string,
-    yeast: string
-}
+import BeerTable from './BeerTable';
 
 export default function Dashboard() {
   let navigate = useNavigate();
@@ -50,14 +37,6 @@ export default function Dashboard() {
     target: window,
   });
 
-  function brands() : JSX.Element[] {
-    const brandTypography : Array<JSX.Element> = []
-    currentData.forEach((beer : BeerObject) => {
-        brandTypography.push(<Typography key={beer.brand + beer.alcohol + beer.ibu}>{beer.brand + " " + beer.name}</Typography>)
-    })
-    return brandTypography
-  }
-
   return (
     <React.Fragment>
       <CssBaseline />
@@ -74,7 +53,7 @@ export default function Dashboard() {
       <Toolbar />
       <Container>
         <Box sx={{ my: 2 }}>
-          {brands()}
+          <BeerTable />
         </Box>
       </Container>
     </React.Fragment>

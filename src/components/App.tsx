@@ -48,7 +48,7 @@ function App() {
   return (
     <>
       <h1>Welcome friend, to Beer Stats!</h1>
-      <h2>To begin, specify your desired amount and then press the mug.</h2>
+      <h2>To begin, specify your desired amount and then press the mug (or press enter).</h2>
       <div className="card">
         <TextField
           label="What can I get ya?"
@@ -56,6 +56,11 @@ function App() {
             endAdornment: <InputAdornment position="end">beers</InputAdornment>,
           }}
           onChange={(e) => handleNumberChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              dispatchBeers();
+            }
+          }}
           error={numError}
           helperText={errorText}
         />
