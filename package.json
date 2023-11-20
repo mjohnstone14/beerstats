@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "commonjs",
+  "homepage": "https://mjohnstone14.github.io/beerstats/",
   "scripts": {
     "dev": "vite",
     "predeploy": "npm run build",

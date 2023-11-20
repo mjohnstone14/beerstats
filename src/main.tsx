@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import { RouterProvider, createMemoryRouter } from 'react-router-dom'
+import { RouterProvider, createHashRouter } from 'react-router-dom'
 import Root from './routes/routes.tsx'
 import ErrorPage from './routes/error-page.tsx'
 import Dashboard from './components/Dashboard.tsx'
@@ -10,7 +10,7 @@ import { setupStore } from './store/store'
 
 const store = setupStore()
 
-const router = createMemoryRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: <Root />,
