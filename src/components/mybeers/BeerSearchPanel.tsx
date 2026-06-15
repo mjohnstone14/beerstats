@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, InputAdornment, CircularProgress, Alert, Skeleton } from '@mui/material';
+import { Box, Typography, TextField, InputAdornment, CircularProgress, Alert, Skeleton, Chip } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
 import { PunkBeer } from '../../interfaces/base';
@@ -13,6 +13,9 @@ interface BeerSearchPanelProps {
   listIds: Set<number>;
   onAdd: (beer: PunkBeer) => void;
   onViewDetail: (beer: PunkBeer) => void;
+  selectedStyle: string;
+  onStyleSelect: (style: string) => void;
+  availableStyles: string[];
 }
 
 /** Placeholder skeleton row shown while results are loading. */
@@ -54,6 +57,9 @@ export default function BeerSearchPanel({
   listIds,
   onAdd,
   onViewDetail,
+  selectedStyle,
+  onStyleSelect,
+  availableStyles,
 }: BeerSearchPanelProps) {
   return (
     <Box>
@@ -96,6 +102,35 @@ export default function BeerSearchPanel({
         <Alert severity="error" sx={{ mb: 2 }}>
           {error} — the Punk API may be temporarily unavailable.
         </Alert>
+      )}
+
+      {/* Style Filters */}
+      {availableStyles.length > 0 && (
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+          <Chip
+            label="All Styles"
+            onClick={() => onStyleSelect('All')}
+            sx={{
+              background: selectedStyle === 'All' ? '#C96E12' : 'rgba(0,0,0,0.06)',
+              color: selectedStyle === 'All' ? '#fff' : '#1a1a1a',
+              fontWeight: selectedStyle === 'All' ? 700 : 500,
+              '&:hover': { background: selectedStyle === 'All' ? '#a85a0e' : 'rgba(0,0,0,0.1)' },
+            }}
+          />
+          {availableStyles.map((style) => (
+            <Chip
+              key={style}
+              label={style}
+              onClick={() => onStyleSelect(style)}
+              sx={{
+                background: selectedStyle === style ? '#C96E12' : 'rgba(0,0,0,0.06)',
+                color: selectedStyle === style ? '#fff' : '#1a1a1a',
+                fontWeight: selectedStyle === style ? 700 : 500,
+                '&:hover': { background: selectedStyle === style ? '#a85a0e' : 'rgba(0,0,0,0.1)' },
+              }}
+            />
+          ))}
+        </Box>
       )}
 
       {/* Result count */}

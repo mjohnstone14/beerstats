@@ -7,6 +7,38 @@ const PUNK_API_BASE = 'https://punkapi-alxiw.amvera.io/v3';
 
 // ── Helpers ──────────────────────────────────────────────────────
 
+const STYLE_KEYWORDS = [
+  { keyword: 'ipa', style: 'IPA' },
+  { keyword: 'india pale ale', style: 'IPA' },
+  { keyword: 'stout', style: 'Stout' },
+  { keyword: 'porter', style: 'Porter' },
+  { keyword: 'lager', style: 'Lager' },
+  { keyword: 'pilsner', style: 'Pilsner' },
+  { keyword: 'pils', style: 'Pilsner' },
+  { keyword: 'pale ale', style: 'Pale Ale' },
+  { keyword: 'wheat', style: 'Wheat' },
+  { keyword: 'hefeweizen', style: 'Wheat' },
+  { keyword: 'saison', style: 'Saison' },
+  { keyword: 'sour', style: 'Sour' },
+  { keyword: 'amber', style: 'Amber' },
+  { keyword: 'blonde', style: 'Blonde' },
+  { keyword: 'brown', style: 'Brown Ale' },
+  { keyword: 'barley wine', style: 'Barleywine' },
+  { keyword: 'barleywine', style: 'Barleywine' },
+  { keyword: 'belgian', style: 'Belgian' },
+  { keyword: 'ale', style: 'Ale' }
+];
+
+export function getBeerStyle(beer: PunkBeer): string {
+  const text = `${beer.name} ${beer.tagline}`.toLowerCase();
+  for (const { keyword, style } of STYLE_KEYWORDS) {
+    if (text.includes(keyword)) {
+      return style;
+    }
+  }
+  return 'Other';
+}
+
 /**
  * Maps a PunkBeer from the API to the BeerObject shape used by the
  * existing BeerTable, ABVChart and IBUDoughnut components.
@@ -21,7 +53,7 @@ export function punkBeerToBeerObject(beer: PunkBeer): BeerObject {
     uid: String(beer.id),
     brand: 'BrewDog',
     name: beer.name,
-    style: beer.tagline,
+    style: getBeerStyle(beer),
     hop: primaryHop,
     yeast: yeast,
     malts: primaryMalt,

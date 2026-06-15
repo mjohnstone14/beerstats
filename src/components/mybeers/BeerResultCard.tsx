@@ -12,6 +12,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
 import { PunkBeer } from '../../interfaces/base';
+import { getBeerStyle } from '../../features/myBeersSlice';
 
 const PUNK_IMAGE_BASE = 'https://punkapi-alxiw.amvera.io/v3/images';
 
@@ -111,6 +112,17 @@ export default function BeerResultCard({
           {beer.tagline}
         </Typography>
         <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+          <Chip
+            label={getBeerStyle(beer)}
+            size="small"
+            sx={{
+              background: 'rgba(0,0,0,0.06)',
+              color: '#1a1a1a',
+              fontSize: '0.7rem',
+              height: 22,
+              fontWeight: 600,
+            }}
+          />
           <Chip
             label={`ABV ${beer.abv}%`}
             size="small"

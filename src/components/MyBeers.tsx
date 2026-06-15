@@ -14,6 +14,7 @@ import {
   setSelectedBeerId,
   clearSearch,
   punkBeerToBeerObject,
+  getBeerStyle,
 } from '../features/myBeersSlice';
 import { setBeerAmount, clearBeerData } from '../features/beerSlice';
 import { PunkBeer } from '../interfaces/base';
@@ -41,8 +42,19 @@ export default function MyBeers() {
   );
 
   const [query, setQuery] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('All');
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const listIds = new Set(myList.map((b) => b.id));
+
+  // Compute available styles and filtered results
+  const availableStyles = Array.from(
+    new Set(searchResults.map((b) => getBeerStyle(b)))
+  ).sort();
+
+  const filteredResults =
+    selectedStyle === 'All'
+      ? searchResults
+      : searchResults.filter((b) => getBeerStyle(b) === selectedStyle);
 
   // Load initial browse results on mount, clean up on unmount
   useEffect(() => {
@@ -114,12 +126,15 @@ export default function MyBeers() {
           <BeerSearchPanel
             query={query}
             onQueryChange={handleQueryChange}
-            results={searchResults}
+            results={filteredResults}
             status={searchStatus}
             error={error}
             listIds={listIds}
             onAdd={handleAdd}
             onViewDetail={handleViewDetail}
+            selectedStyle={selectedStyle}
+            onStyleSelect={setSelectedStyle}
+            availableStyles={availableStyles}
           />
 
           <MyBeersList
