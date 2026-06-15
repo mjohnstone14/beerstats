@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import beer from '../assets/beer-android-chrome-512x512.png';
 import '../App.css';
-import { InputAdornment, TextField } from '@mui/material';
+import { Button, InputAdornment, TextField } from '@mui/material';
+import SportsBarIcon from '@mui/icons-material/SportsBar';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { clearBeerData, fetchBeerData, setBeerAmount } from '../features/beerSlice';
 import { useNavigate } from 'react-router-dom';
@@ -78,6 +79,30 @@ function App() {
         <a onClick={dispatchBeers} target="_blank">
           <img src={beer} className="logo" alt="Beer logo" />
         </a>
+      </div>
+      <div>
+        <Button
+          variant="outlined"
+          startIcon={<SportsBarIcon />}
+          onClick={() => navigate('/my-beers')}
+          sx={{
+            mt: 1,
+            borderColor: '#C96E12',
+            color: '#C96E12',
+            fontWeight: 700,
+            borderRadius: 2,
+            textTransform: 'none',
+            fontSize: '1rem',
+            px: 3,
+            py: 1,
+            '&:hover': {
+              background: 'rgba(201,110,18,0.1)',
+              borderColor: '#a85a0e',
+            },
+          }}
+        >
+          Browse My Beers
+        </Button>
       </div>
     </>
   );

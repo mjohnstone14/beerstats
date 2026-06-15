@@ -5,6 +5,36 @@ export interface Column {
     align?: 'right';
     format?: (value: number) => string;
 }
+
+// ── Punk API types ──────────────────────────────────────────────
+
+export interface PunkIngredient {
+  name: string;
+  amount: { value: number; unit: string };
+  add?: string;
+  attribute?: string;
+}
+
+export interface PunkBeer {
+  id: number;
+  name: string;
+  tagline: string;
+  first_brewed: string;
+  description: string;
+  image: string | null;
+  abv: number;
+  ibu: number | null;
+  ebc: number | null;
+  srm: number | null;
+  ph: number | null;
+  ingredients: {
+    malt: PunkIngredient[];
+    hops: PunkIngredient[];
+    yeast: string;
+  };
+  food_pairing: string[];
+  brewers_tips: string;
+}
   
 export interface Data {
     name: string;

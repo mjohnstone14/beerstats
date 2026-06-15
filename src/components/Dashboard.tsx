@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { clearBeerData } from '../features/beerSlice';
 import BeerTable from './BeerTable';
 import BeerMug from '../assets/beer-android-chrome-192x192.png';
-import { Card, ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material';
 import ABVChart from './ABVChart';
 import IBUDoughnut from './IBUDoughnut';
 
@@ -64,7 +64,7 @@ export default function Dashboard() {
                 alt="Beer logo"
               />
               <Typography variant="h6" component="div">
-                Analytics on your requested {currentBeers} brews
+                Analytics on your {currentBeers} brews
               </Typography>
             </Toolbar>
           </AppBar>
@@ -72,9 +72,6 @@ export default function Dashboard() {
         <Toolbar />
         <Container style={{ height: 'auto' }}>
           <Box sx={{ my: 2 }}>
-            <Card style={{ margin: '3%' }}>
-              <Typography>Disclaimer: The data is currently provided by <a href="https://random-data-api.com/" target="_blank" rel="noopener noreferrer">Random Data API</a> and does not represent real data</Typography>
-            </Card>
             <BeerTable />
             <ABVChart />
             <IBUDoughnut/>

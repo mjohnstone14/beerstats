@@ -5,6 +5,8 @@ import { RouterProvider, createHashRouter } from 'react-router-dom'
 import Root from './routes/routes.tsx'
 import ErrorPage from './routes/error-page.tsx'
 import Dashboard from './components/Dashboard.tsx'
+import MyBeers from './components/MyBeers.tsx'
+import BeerDetail from './components/BeerDetail.tsx'
 import { Provider } from 'react-redux'
 import { setupStore } from './store/store'
 
@@ -19,6 +21,14 @@ const router = createHashRouter([
   {
     path: "/dashboard",
     element: <Dashboard />
+  },
+  {
+    path: "/my-beers",
+    element: <MyBeers />
+  },
+  {
+    path: "/beer/:id",
+    element: <BeerDetail />
   }
 ])
 
