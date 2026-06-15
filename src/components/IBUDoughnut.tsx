@@ -3,6 +3,7 @@ import { Doughnut } from 'react-chartjs-2';
 import { Card } from '@mui/material';
 import { useAppSelector } from '../hooks';
 import { getRGBAArrayForSRM } from '../helpers/InterpolateColors';
+import { BeerObject } from '../interfaces/base';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

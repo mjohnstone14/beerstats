@@ -1,4 +1,4 @@
-interface Column {
+export interface Column {
     id: 'name' | 'style' | 'ibu' | 'alcohol' | 'malts' | 'hop' | 'yeast';
     label: string;
     minWidth?: number;
@@ -6,7 +6,7 @@ interface Column {
     format?: (value: number) => string;
 }
   
-interface Data {
+export interface Data {
     name: string;
     style: string;
     ibu: string;
@@ -16,7 +16,7 @@ interface Data {
     yeast: string;
 }
   
-interface BeerObject {
+export interface BeerObject {
     alcohol: string;
     blg: string;
     brand: string;

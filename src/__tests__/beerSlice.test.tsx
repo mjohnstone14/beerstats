@@ -42,7 +42,7 @@ describe('beerSlice', () => {
   it('should handle clearBeerData', async () => {
     // Set initial state with some data
     store.dispatch(setBeerAmount(3));
-    await (store.dispatch as ThunkDispatch<RootState, undefined, PayloadAction<any>>)(fetchBeerData(5))
+    await (store.dispatch as ThunkDispatch<RootState, undefined, PayloadAction<unknown>>)(fetchBeerData(5))
 
     // Clear the data
     store.dispatch(clearBeerData());
@@ -56,7 +56,7 @@ describe('beerSlice', () => {
   it('should update state on successful fetchBeerData', async () => {
     mockAxios.onGet('https://random-data-api.com/api/v2/beers?size=5').reply(200, [{ beer: 'Beer 1' }]);
 
-    await (store.dispatch as ThunkDispatch<RootState, undefined, PayloadAction<any>>)(fetchBeerData(5))
+    await (store.dispatch as ThunkDispatch<RootState, undefined, PayloadAction<unknown>>)(fetchBeerData(5))
 
 
     const state = store.getState().beer;
@@ -67,7 +67,7 @@ describe('beerSlice', () => {
   it('should handle fetchBeerData failure', async () => {
     mockAxios.onGet('https://random-data-api.com/api/v2/beers?size=5').reply(500, { error: 'Server error' });
 
-    await (store.dispatch as ThunkDispatch<RootState, undefined, PayloadAction<any>>)(fetchBeerData(5))
+    await (store.dispatch as ThunkDispatch<RootState, undefined, PayloadAction<unknown>>)(fetchBeerData(5))
 
     const state = store.getState().beer;
     expect(state.status).toEqual('failed');

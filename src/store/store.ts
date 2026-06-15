@@ -1,11 +1,11 @@
-import { PreloadedState, combineReducers, configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import beerReducer from '../features/beerSlice';
 
 const rootReducer = combineReducers({
   beers: beerReducer,
 });
 
-export function setupStore(preloadedState?: PreloadedState<RootState>) {
+export function setupStore(preloadedState?: Partial<RootState>) {
   return configureStore({
     reducer: rootReducer,
     preloadedState,

@@ -3,6 +3,7 @@ import { useAppSelector } from "../hooks";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import { Card } from "@mui/material";
 import { getRGBAArrayForSRM } from "../helpers/InterpolateColors";
+import { BeerObject } from "../interfaces/base";
 
 ChartJS.register(
     CategoryScale,

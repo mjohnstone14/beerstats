@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useAppSelector } from "../hooks";
+import { Column, Data, BeerObject } from "../interfaces/base";
 
 const columns: readonly Column[] = [
   { id: 'name', label: 'Name', minWidth: 170 },
