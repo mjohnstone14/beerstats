@@ -1,7 +1,7 @@
 import { Bar } from "react-chartjs-2"
 import { useAppSelector } from "../hooks";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import { Card } from "@mui/material";
+import { Card, Box } from "@mui/material";
 import { getRGBAArrayForSRM } from "../helpers/InterpolateColors";
 import { BeerObject } from "../interfaces/base";
 
@@ -62,8 +62,10 @@ export default function ABVChart() {
     const barData = createData();
     
     return (
-        <Card style={{ margin: '3%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Bar data={barData}/>
+        <Card sx={{ p: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderRadius: 3, height: 400, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ flex: 1, minHeight: 0 }}>
+                <Bar data={barData} options={{ maintainAspectRatio: false }} />
+            </Box>
         </Card>  
     )
 }

@@ -10,9 +10,37 @@ export interface Column {
 
 export interface PunkIngredient {
   name: string;
-  amount: { value: number; unit: string };
+  amount: {
+    value: number;
+    unit: string;
+  };
   add?: string;
   attribute?: string;
+}
+
+export interface UnifiedBeer {
+  id: string | number; // e.g. 192 or "craft-10"
+  source: 'punk' | 'craft';
+  name: string;
+  brewery: string; // 'BrewDog' or specific US brewery
+  location?: string;
+  tagline?: string;
+  style: string;
+  abv: number | null;
+  ibu: number | null;
+  ebc?: number | null;
+  srm?: number | null;
+  ph?: number | null;
+  description: string;
+  image: string | null;
+  food_pairing?: string[];
+  brewers_tips?: string;
+  first_brewed?: string;
+  ingredients?: {
+    malt: PunkIngredient[];
+    hops: PunkIngredient[];
+    yeast: string;
+  };
 }
 
 export interface PunkBeer {

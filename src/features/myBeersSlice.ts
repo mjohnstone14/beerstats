@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { PunkBeer } from '../interfaces/base';
+import { PunkBeer, UnifiedBeer } from '../interfaces/base';
 import { BeerObject } from '../interfaces/base';
+import craftBeersData from '../data/craftBeers.json';
 
 const PUNK_API_BASE = 'https://punkapi-alxiw.amvera.io/v3';
 
@@ -29,8 +30,8 @@ const STYLE_KEYWORDS = [
   { keyword: 'ale', style: 'Ale' }
 ];
 
-export function getBeerStyle(beer: PunkBeer): string {
-  const text = `${beer.name} ${beer.tagline}`.toLowerCase();
+export function getBeerStyle(beer: UnifiedBeer | PunkBeer): string {
+  const text = `${beer.name} ${beer.tagline || ''}`.toLowerCase();
   for (const { keyword, style } of STYLE_KEYWORDS) {
     if (text.includes(keyword)) {
       return style;
@@ -40,20 +41,46 @@ export function getBeerStyle(beer: PunkBeer): string {
 }
 
 /**
- * Maps a PunkBeer from the API to the BeerObject shape used by the
+ * Maps a PunkBeer to UnifiedBeer format.
+ */
+export function punkToUnified(beer: PunkBeer): UnifiedBeer {
+  return {
+    id: beer.id,
+    source: 'punk',
+    name: beer.name,
+    brewery: 'BrewDog',
+    location: 'Scotland, UK',
+    tagline: beer.tagline,
+    style: getBeerStyle(beer),
+    abv: beer.abv,
+    ibu: beer.ibu,
+    ebc: beer.ebc,
+    srm: beer.srm,
+    ph: beer.ph,
+    description: beer.description,
+    image: beer.image_url,
+    food_pairing: beer.food_pairing,
+    brewers_tips: beer.brewers_tips,
+    first_brewed: beer.first_brewed,
+    ingredients: beer.ingredients,
+  };
+}
+
+/**
+ * Maps a UnifiedBeer to the BeerObject shape used by the
  * existing BeerTable, ABVChart and IBUDoughnut components.
  */
-export function punkBeerToBeerObject(beer: PunkBeer): BeerObject {
+export function beerToBeerObject(beer: UnifiedBeer): BeerObject {
   const primaryMalt = beer.ingredients?.malt?.[0]?.name ?? '—';
   const primaryHop = beer.ingredients?.hops?.[0]?.name ?? '—';
   const yeast = beer.ingredients?.yeast ?? '—';
 
   return {
-    id: beer.id,
+    id: typeof beer.id === 'number' ? beer.id : parseInt(String(beer.id).replace(/\D/g, ''), 10) || 0,
     uid: String(beer.id),
-    brand: 'BrewDog',
+    brand: beer.brewery,
     name: beer.name,
-    style: getBeerStyle(beer),
+    style: beer.style,
     hop: primaryHop,
     yeast: yeast,
     malts: primaryMalt,
@@ -66,39 +93,62 @@ export function punkBeerToBeerObject(beer: PunkBeer): BeerObject {
 // ── Thunks ───────────────────────────────────────────────────────
 
 /**
- * Search beers by name using the Punk API.
- * Falls back to empty array on error so the UI can show a friendly message.
+ * Search beers by name combining the Punk API and local Craft Beers data.
  */
-export const searchPunkBeers = createAsyncThunk(
-  'myBeers/searchPunkBeers',
+export const searchAllBeers = createAsyncThunk(
+  'myBeers/searchAllBeers',
   async (query: string) => {
+    const q = query.trim().toLowerCase();
+
+    // 1. Fetch from Punk API
     const params: Record<string, string | number> = { page: 1, per_page: 80 };
-    if (query.trim()) {
-      // v3 API uses spaces directly in beer_name, not underscores
-      params.beer_name = query.trim();
+    if (q) params.beer_name = q;
+    
+    let punkBeers: UnifiedBeer[] = [];
+    try {
+      const response = await axios.get<PunkBeer[]>(`${PUNK_API_BASE}/beers`, { params });
+      punkBeers = response.data.map(punkToUnified);
+    } catch (e) {
+      console.warn('Punk API failed, falling back to local only', e);
     }
-    const response = await axios.get<PunkBeer[]>(`${PUNK_API_BASE}/beers`, { params });
-    return response.data;
+
+    // 2. Fetch from Local Craft Beers
+    let craftBeers = craftBeersData as UnifiedBeer[];
+    if (q) {
+      craftBeers = craftBeers.filter(
+        b => b.name.toLowerCase().includes(q) || b.style.toLowerCase().includes(q) || b.brewery.toLowerCase().includes(q)
+      );
+    }
+
+    // Combine them
+    return [...punkBeers, ...craftBeers];
   }
 );
 
 /**
  * Load a single beer by ID (used by the BeerDetail page).
+ * Checks local first, then hits Punk API if it's a numeric ID.
  */
 export const loadBeerById = createAsyncThunk(
   'myBeers/loadBeerById',
-  async (id: number) => {
-    const response = await axios.get<PunkBeer[]>(`${PUNK_API_BASE}/beers/${id}`);
-    return response.data[0];
+  async (id: string | number) => {
+    if (String(id).startsWith('craft-')) {
+      const craft = (craftBeersData as UnifiedBeer[]).find(b => String(b.id) === String(id));
+      if (!craft) throw new Error('Craft beer not found');
+      return craft;
+    } else {
+      const response = await axios.get<PunkBeer[]>(`${PUNK_API_BASE}/beers/${id}`);
+      return punkToUnified(response.data[0]);
+    }
   }
 );
 
 // ── Slice ────────────────────────────────────────────────────────
 
 interface MyBeersState {
-  searchResults: PunkBeer[];
-  myList: PunkBeer[];
-  selectedBeerId: number | null;
+  searchResults: UnifiedBeer[];
+  myList: UnifiedBeer[];
+  selectedBeerId: string | number | null;
   searchStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
   detailStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
@@ -121,22 +171,22 @@ export const myBeersSlice = createSlice({
      * Add a beer to the user's personal list.
      * Prevents duplicates by checking the id.
      */
-    addToMyList: (state, action: PayloadAction<PunkBeer>) => {
-      const alreadyAdded = state.myList.some((b) => b.id === action.payload.id);
+    addToMyList: (state, action: PayloadAction<UnifiedBeer>) => {
+      const alreadyAdded = state.myList.some((b) => String(b.id) === String(action.payload.id));
       if (!alreadyAdded) {
         state.myList.push(action.payload);
       }
     },
     /** Remove a beer from the personal list by id. */
-    removeFromMyList: (state, action: PayloadAction<number>) => {
-      state.myList = state.myList.filter((b) => b.id !== action.payload);
+    removeFromMyList: (state, action: PayloadAction<string | number>) => {
+      state.myList = state.myList.filter((b) => String(b.id) !== String(action.payload));
     },
     /** Clear the entire personal list. */
     clearMyList: (state) => {
       state.myList = [];
     },
     /** Mark a beer as the focused/selected one for the detail page. */
-    setSelectedBeerId: (state, action: PayloadAction<number | null>) => {
+    setSelectedBeerId: (state, action: PayloadAction<string | number | null>) => {
       state.selectedBeerId = action.payload;
     },
     /** Reset search state back to idle. */
@@ -147,16 +197,16 @@ export const myBeersSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // searchPunkBeers
-    builder.addCase(searchPunkBeers.pending, (state) => {
+    // searchAllBeers
+    builder.addCase(searchAllBeers.pending, (state) => {
       state.searchStatus = 'loading';
       state.error = null;
     });
-    builder.addCase(searchPunkBeers.fulfilled, (state, action) => {
+    builder.addCase(searchAllBeers.fulfilled, (state, action) => {
       state.searchStatus = 'succeeded';
       state.searchResults = action.payload;
     });
-    builder.addCase(searchPunkBeers.rejected, (state, action) => {
+    builder.addCase(searchAllBeers.rejected, (state, action) => {
       state.searchStatus = 'failed';
       state.error = action.error.message ?? 'Failed to fetch beers';
     });

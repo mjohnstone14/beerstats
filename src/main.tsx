@@ -10,6 +10,9 @@ import BeerDetail from './components/BeerDetail.tsx'
 import { Provider } from 'react-redux'
 import { setupStore } from './store/store'
 
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+ModuleRegistry.registerModules([AllCommunityModule]);
+
 const store = setupStore()
 
 const router = createHashRouter([

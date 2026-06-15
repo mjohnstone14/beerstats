@@ -7,17 +7,17 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import {
-  searchPunkBeers,
+  searchAllBeers,
   addToMyList,
   removeFromMyList,
   clearMyList,
   setSelectedBeerId,
   clearSearch,
-  punkBeerToBeerObject,
+  beerToBeerObject,
   getBeerStyle,
 } from '../features/myBeersSlice';
 import { setBeerAmount, clearBeerData } from '../features/beerSlice';
-import { PunkBeer } from '../interfaces/base';
+import { UnifiedBeer } from '../interfaces/base';
 import BeerMug from '../assets/beer-android-chrome-192x192.png';
 import BeerSearchPanel from './mybeers/BeerSearchPanel';
 import MyBeersList from './mybeers/MyBeersList';
@@ -58,26 +58,25 @@ export default function MyBeers() {
 
   // Load initial browse results on mount, clean up on unmount
   useEffect(() => {
-    dispatch(searchPunkBeers(''));
-    return () => { dispatch(clearSearch()); };
+    dispatch(searchAllBeers(''));
+    return () => {
+      dispatch(clearSearch());
+    };
   }, [dispatch]);
 
-  const handleQueryChange = useCallback(
-    (value: string) => {
-      setQuery(value);
-      if (debounceTimer.current) clearTimeout(debounceTimer.current);
-      debounceTimer.current = setTimeout(() => {
-        dispatch(searchPunkBeers(value));
-      }, 400);
-    },
-    [dispatch]
-  );
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      dispatch(searchAllBeers(value));
+    }, 400);
+  };
 
-  const handleAdd = (beer: PunkBeer) => dispatch(addToMyList(beer));
-  const handleRemove = (id: number) => dispatch(removeFromMyList(id));
+  const handleAdd = (beer: UnifiedBeer) => dispatch(addToMyList(beer));
+  const handleRemove = (id: string | number) => dispatch(removeFromMyList(id));
   const handleClear = () => dispatch(clearMyList());
 
-  const handleViewDetail = (beer: PunkBeer) => {
+  const handleViewDetail = (beer: UnifiedBeer) => {
     dispatch(setSelectedBeerId(beer.id));
     navigate(`/beer/${beer.id}`);
   };
@@ -85,7 +84,7 @@ export default function MyBeers() {
   /** Map the personal list into BeerObject[], push to the existing beerSlice, go to dashboard. */
   const handleViewAnalytics = () => {
     if (myList.length < 2) return;
-    const mapped = myList.map(punkBeerToBeerObject);
+    const mapped = myList.map((b) => beerToBeerObject(b));
     dispatch(clearBeerData());
     dispatch(setBeerAmount(mapped.length));
     dispatch({ type: 'data/fetchBeerData/fulfilled', payload: mapped });

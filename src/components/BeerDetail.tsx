@@ -76,15 +76,15 @@ export default function BeerDetail() {
     (state) => state.myBeers
   );
 
-  const beerId = Number(id);
+  const beerId = id; // string to handle "craft-10"
 
   // Try to find the beer in already-loaded search results first, then fall back to API call
   const beer =
-    searchResults.find((b) => b.id === beerId) ??
-    myList.find((b) => b.id === beerId) ??
+    searchResults.find((b) => String(b.id) === beerId) ??
+    myList.find((b) => String(b.id) === beerId) ??
     null;
 
-  const isInList = myList.some((b) => b.id === beerId);
+  const isInList = myList.some((b) => String(b.id) === beerId);
 
   useEffect(() => {
     if (!beer && beerId) {
@@ -197,14 +197,18 @@ export default function BeerDetail() {
                     {beer.name}
                   </Typography>
                   <Typography variant="subtitle1" sx={{ color: '#C96E12', mb: 1, fontStyle: 'italic' }}>
-                    {beer.tagline}
+                    {beer.brewery} {beer.tagline ? `— ${beer.tagline}` : ''}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(0,0,0,0.45)', display: 'block', mb: 2 }}>
-                    First brewed: {beer.first_brewed}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.7)', lineHeight: 1.7, mb: 2.5 }}>
-                    {beer.description}
-                  </Typography>
+                  {beer.first_brewed && (
+                    <Typography variant="caption" sx={{ color: 'rgba(0,0,0,0.45)', display: 'block', mb: 2 }}>
+                      First brewed: {beer.first_brewed}
+                    </Typography>
+                  )}
+                  {beer.description && (
+                    <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.7)', lineHeight: 1.7, mb: 2.5 }}>
+                      {beer.description}
+                    </Typography>
+                  )}
 
                   <Button
                     variant={isInList ? 'outlined' : 'contained'}
@@ -251,90 +255,95 @@ export default function BeerDetail() {
             </Card>
 
             {/* ── Ingredients ────────────────────────── */}
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' },
-                gap: 2,
-                mb: 3,
-              }}
-            >
-              {/* Malts */}
-              <Card sx={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 2 }}>
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700 }}>
-                    Malts
-                  </Typography>
-                  <List dense disablePadding>
-                    {beer.ingredients.malt.map((m, i) => (
-                      <ListItem key={i} disablePadding sx={{ py: 0.25 }}>
-                        <ListItemText
-                          primary={m.name}
-                          secondary={`${m.amount.value} ${m.amount.unit}`}
-                          primaryTypographyProps={{ color: '#333', fontSize: '0.85rem' }}
-                          secondaryTypographyProps={{ color: 'rgba(0,0,0,0.5)', fontSize: '0.75rem' }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              </Card>
-
-              {/* Hops */}
-              <Card sx={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 2 }}>
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700 }}>
-                    Hops
-                  </Typography>
-                  <List dense disablePadding>
-                    {beer.ingredients.hops.map((h, i) => (
-                      <ListItem key={i} disablePadding sx={{ py: 0.25 }}>
-                        <ListItemText
-                          primary={h.name}
-                          secondary={`${h.amount.value}g · ${h.add} · ${h.attribute}`}
-                          primaryTypographyProps={{ color: '#333', fontSize: '0.85rem' }}
-                          secondaryTypographyProps={{ color: 'rgba(0,0,0,0.5)', fontSize: '0.75rem' }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              </Card>
-
-              {/* Yeast + food */}
-              <Card sx={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 2 }}>
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700 }}>
-                    Yeast
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#1a1a1a', mb: 2 }}>
-                    {beer.ingredients.yeast}
-                  </Typography>
-
-                  <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)', mb: 1.5 }} />
-
-                  <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700, display: 'block', mb: 1 }}>
-                    Food Pairings
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                    {beer.food_pairing.map((food, i) => (
-                      <Chip
-                        key={i}
-                        label={food}
-                        size="small"
-                        sx={{
-                          background: 'rgba(201,110,18,0.08)',
-                          color: 'rgba(0,0,0,0.7)',
-                          fontSize: '0.72rem',
-                          height: 'auto',
-                          '& .MuiChip-label': { whiteSpace: 'normal', py: 0.5 },
-                        }}
-                      />
-                    ))}
+            {beer.ingredients && (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' },
+                  gap: 2,
+                  mb: 3,
+                }}
+              >
+                {/* Malts */}
+                <Card sx={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 2 }}>
+                  <Box sx={{ p: 2 }}>
+                    <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700 }}>
+                      Malts
+                    </Typography>
+                    <List dense disablePadding>
+                      {beer.ingredients.malt.map((m, i) => (
+                        <ListItem key={i} disablePadding sx={{ py: 0.25 }}>
+                          <ListItemText
+                            primary={m.name}
+                            secondary={`${m.amount.value} ${m.amount.unit}`}
+                            primaryTypographyProps={{ color: '#333', fontSize: '0.85rem' }}
+                            secondaryTypographyProps={{ color: 'rgba(0,0,0,0.5)', fontSize: '0.75rem' }}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
                   </Box>
-                </Box>
-              </Card>
-            </Box>
+                </Card>
+
+                {/* Hops */}
+                <Card sx={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 2 }}>
+                  <Box sx={{ p: 2 }}>
+                    <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700 }}>
+                      Hops
+                    </Typography>
+                    <List dense disablePadding>
+                      {beer.ingredients.hops.map((h, i) => (
+                        <ListItem key={i} disablePadding sx={{ py: 0.25 }}>
+                          <ListItemText
+                            primary={h.name}
+                            secondary={`${h.amount.value}g · ${h.add} · ${h.attribute}`}
+                            primaryTypographyProps={{ color: '#333', fontSize: '0.85rem' }}
+                            secondaryTypographyProps={{ color: 'rgba(0,0,0,0.5)', fontSize: '0.75rem' }}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                </Card>
+
+                {/* Yeast + food */}
+                <Card sx={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 2 }}>
+                  <Box sx={{ p: 2 }}>
+                    <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700 }}>
+                      Yeast
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#1a1a1a', mb: 2 }}>
+                      {beer.ingredients.yeast}
+                    </Typography>
+
+                    {beer.food_pairing && (
+                      <>
+                        <Divider sx={{ borderColor: 'rgba(0,0,0,0.08)', mb: 1.5 }} />
+                        <Typography variant="overline" sx={{ color: '#C96E12', letterSpacing: 2, fontWeight: 700, display: 'block', mb: 1 }}>
+                          Food Pairings
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                          {beer.food_pairing.map((food, i) => (
+                            <Chip
+                              key={i}
+                              label={food}
+                              size="small"
+                              sx={{
+                                background: 'rgba(201,110,18,0.08)',
+                                color: 'rgba(0,0,0,0.7)',
+                                fontSize: '0.72rem',
+                                height: 'auto',
+                                '& .MuiChip-label': { whiteSpace: 'normal', py: 0.5 },
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      </>
+                    )}
+                  </Box>
+                </Card>
+              </Box>
+            )}
 
             {/* ── Brewer's Tips ──────────────────────── */}
             {beer.brewers_tips && (

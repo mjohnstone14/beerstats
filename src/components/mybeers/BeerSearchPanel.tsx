@@ -1,18 +1,18 @@
 import { Box, Typography, TextField, InputAdornment, CircularProgress, Alert, Skeleton, Chip } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
-import { PunkBeer } from '../../interfaces/base';
-import BeerResultCard from './BeerResultCard';
+import { UnifiedBeer } from '../../interfaces/base';
+import BeerSearchTable from './BeerSearchTable';
 
 interface BeerSearchPanelProps {
   query: string;
   onQueryChange: (value: string) => void;
-  results: PunkBeer[];
+  results: UnifiedBeer[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
-  listIds: Set<number>;
-  onAdd: (beer: PunkBeer) => void;
-  onViewDetail: (beer: PunkBeer) => void;
+  listIds: Set<string | number>;
+  onAdd: (beer: UnifiedBeer) => void;
+  onViewDetail: (beer: UnifiedBeer) => void;
   selectedStyle: string;
   onStyleSelect: (style: string) => void;
   availableStyles: string[];
@@ -153,15 +153,13 @@ export default function BeerSearchPanel({
       )}
 
       {/* Results */}
-      {results.map((beer) => (
-        <BeerResultCard
-          key={beer.id}
-          beer={beer}
-          added={listIds.has(beer.id)}
+      {status === 'succeeded' && results.length > 0 && (
+        <BeerSearchTable
+          searchResults={results}
           onAdd={onAdd}
           onViewDetail={onViewDetail}
         />
-      ))}
+      )}
     </Box>
   );
 }

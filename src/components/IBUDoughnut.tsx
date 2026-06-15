@@ -1,6 +1,6 @@
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { Card } from '@mui/material';
+import { Card, Box } from '@mui/material';
 import { useAppSelector } from '../hooks';
 import { getRGBAArrayForSRM } from '../helpers/InterpolateColors';
 import { BeerObject } from '../interfaces/base';
@@ -41,8 +41,10 @@ export default function IBUDoughnut() {
   const doughnutData = createData();
 
   return (
-    <Card style={{ margin: '3%', display: 'flex', justifyContent: 'center', alignItems: 'center', maxHeight: '80vh' }}>
-      <Doughnut data={doughnutData} />
+    <Card sx={{ p: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderRadius: 3, height: 400, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <Doughnut data={doughnutData} options={{ maintainAspectRatio: false }} />
+      </Box>
     </Card>
   );
 }
