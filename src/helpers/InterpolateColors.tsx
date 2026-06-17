@@ -3,7 +3,7 @@ const interpolateRGBA = (color1: number[], color2: number[], factor: number): st
     return `rgba(${interpolatedColor[0]}, ${interpolatedColor[1]}, ${interpolatedColor[2]}, 0.8)`;
 };
   
-const calculateRGBA = (srm: number): string => {
+export const calculateRGBA = (srm: number): string => {
     const srmColors = [
       [255, 204, 102],
       [255, 191, 51],

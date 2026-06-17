@@ -1,4 +1,3 @@
-import { PreloadedState } from "@reduxjs/toolkit";
 import { RenderOptions, render } from "@testing-library/react";
 import { PropsWithChildren } from "react";
 import { Provider } from "react-redux";
@@ -6,7 +5,7 @@ import { RootState, AppStore, setupStore } from "../store/store";
 import { MemoryRouter } from "react-router-dom";
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-  preloadedState?: PreloadedState<RootState>;
+  preloadedState?: Partial<RootState>;
   store?: AppStore;
 }
 
@@ -18,7 +17,7 @@ export function renderWithProviders(
     ...renderOptions
   }: ExtendedRenderOptions = {}
 ) {
-  function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
+  function Wrapper({ children }: PropsWithChildren<unknown>): JSX.Element {
     return <Provider store={store}><MemoryRouter>{children}</MemoryRouter></Provider>;
   }
 

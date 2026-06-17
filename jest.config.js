@@ -12,4 +12,19 @@ module.exports = {
     },
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+    collectCoverage: true,
+    collectCoverageFrom: [
+      'src/**/*.{ts,tsx}',
+      '!src/**/*.d.ts',
+      '!src/main.tsx',
+      '!src/vite-env.d.ts'
+    ],
+    coverageThreshold: {
+        global: {
+            branches: 70,
+            functions: 75,
+            lines: 80,
+            statements: 80
+        }
+    }
 };
