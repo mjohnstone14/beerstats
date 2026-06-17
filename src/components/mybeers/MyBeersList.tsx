@@ -12,13 +12,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
-import { PunkBeer } from '../../interfaces/base';
+import { UnifiedBeer } from '../../interfaces/base';
 
 interface MyBeersListProps {
-  list: PunkBeer[];
-  onRemove: (id: number) => void;
+  list: UnifiedBeer[];
+  onRemove: (id: string | number) => void;
   onClear: () => void;
-  onViewDetail: (beer: PunkBeer) => void;
+  onViewDetail: (beer: UnifiedBeer) => void;
   onViewAnalytics: () => void;
 }
 
@@ -135,6 +135,7 @@ export default function MyBeersList({
 
                   <IconButton
                     size="small"
+                    aria-label="remove beer"
                     onClick={() => onRemove(beer.id)}
                     sx={{
                       color: 'rgba(0,0,0,0.3)',

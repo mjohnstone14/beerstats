@@ -4,6 +4,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Card, Box } from "@mui/material";
 import { getRGBAArrayForSRM } from "../helpers/InterpolateColors";
 import { BeerObject } from "../interfaces/base";
+import { beerToBeerObject } from "../features/myBeersSlice";
 
 ChartJS.register(
     CategoryScale,
@@ -22,7 +23,8 @@ ChartJS.register(
  * @returns a Chart.js bar chart with the processed data from the initial fetch
  */
 export default function ABVChart() {
-    const currentData: Array<BeerObject> = useAppSelector((state) => state.beers.data);
+    const rawData = useAppSelector((state) => state.myBeers.myList);
+    const currentData = rawData.map(beerToBeerObject);
 
     /**
      * This function takes the data from the redux store and processes it

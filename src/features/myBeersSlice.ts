@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { PunkBeer, UnifiedBeer } from '../interfaces/base';
 import { BeerObject } from '../interfaces/base';
-import craftBeersData from '../data/craftBeers.json';
 
 const PUNK_API_BASE = 'https://punkapi-alxiw.amvera.io/v3';
 
@@ -112,16 +111,7 @@ export const searchAllBeers = createAsyncThunk(
       console.warn('Punk API failed, falling back to local only', e);
     }
 
-    // 2. Fetch from Local Craft Beers
-    let craftBeers = craftBeersData as UnifiedBeer[];
-    if (q) {
-      craftBeers = craftBeers.filter(
-        b => b.name.toLowerCase().includes(q) || b.style.toLowerCase().includes(q) || b.brewery.toLowerCase().includes(q)
-      );
-    }
-
-    // Combine them
-    return [...punkBeers, ...craftBeers];
+    return punkBeers;
   }
 );
 
@@ -132,13 +122,24 @@ export const searchAllBeers = createAsyncThunk(
 export const loadBeerById = createAsyncThunk(
   'myBeers/loadBeerById',
   async (id: string | number) => {
-    if (String(id).startsWith('craft-')) {
-      const craft = (craftBeersData as UnifiedBeer[]).find(b => String(b.id) === String(id));
-      if (!craft) throw new Error('Craft beer not found');
-      return craft;
-    } else {
-      const response = await axios.get<PunkBeer[]>(`${PUNK_API_BASE}/beers/${id}`);
-      return punkToUnified(response.data[0]);
+    try {
+      const response = await axios.get<any>(`${PUNK_API_BASE}/beers/${id}`);
+      // The v3 API returns a single object for /beers/:id, but we handle both object and array to be safe
+      const beerData = Array.isArray(response.data) ? response.data[0] : response.data;
+      
+      if (!beerData) {
+        throw new Error("We couldn't find the details for this beer.");
+      }
+      return punkToUnified(beerData);
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        throw new Error("We couldn't find the details for this beer.");
+      }
+      // Preserve our custom error messages
+      if (error.message === "We couldn't find the details for this beer.") {
+        throw error;
+      }
+      throw new Error("Oops, something went wrong while fetching the beer details.");
     }
   }
 );
@@ -215,8 +216,12 @@ export const myBeersSlice = createSlice({
     builder.addCase(loadBeerById.pending, (state) => {
       state.detailStatus = 'loading';
     });
-    builder.addCase(loadBeerById.fulfilled, (state) => {
+    builder.addCase(loadBeerById.fulfilled, (state, action) => {
       state.detailStatus = 'succeeded';
+      const exists = state.searchResults.some(b => String(b.id) === String(action.payload.id));
+      if (!exists) {
+        state.searchResults.push(action.payload);
+      }
     });
     builder.addCase(loadBeerById.rejected, (state, action) => {
       state.detailStatus = 'failed';

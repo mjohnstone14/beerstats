@@ -1,66 +1,65 @@
 import App from "../components/App"
-import { fireEvent, screen } from '@testing-library/react'
+import { screen, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { renderWithProviders } from "../utils/test-utils"
 
-test('Uses preloaded state to render', () => {
-    const initialBeer = 2
-    expect(renderWithProviders(<App />, {
-        preloadedState: {
-            beers: {
-                value: initialBeer,
-                data: [
-                    1,
-                    2
-                ],
-                status: 'idle',
-                error: 'none'
-            }
-        }
-    }).store.getState()).toStrictEqual({
-        "beers": {"value": 2, "data": [1,2], "status": "idle", "error": "none"}
-    })
-})
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
-test('checks the welcome message', () => {
-    const initialBeer = 0
-    renderWithProviders(<App />, {
-        preloadedState: {
-            beers: {
-                value: initialBeer,
-                data: [
-                    1,
-                    2
-                ],
-                status: 'idle',
-                error: 'none'
-            }
-        }
-    })
-    expect(screen.getByText('Welcome friend, to Beer Stats!')).toBeTruthy()
-})
+describe('App component', () => {
+  beforeEach(() => {
+    mockNavigate.mockClear();
+  });
 
-test('handles user input correctly', () => {
-    const { getByLabelText } = renderWithProviders(<App />);
-    const input = getByLabelText('What can I get ya?');
-
-    // simulate user event 
-    fireEvent.change(input, { target: { value: 'abc '} });
-
-    // check if error state updates
-    expect(screen.getByText('Sorry pal, numbers only')).toBeTruthy();
-});
-
-test('renders welcome message', () => {
+  test('renders welcome message', () => {
     renderWithProviders(<App />);
     expect(screen.getByText('Welcome friend, to Beer Stats!')).toBeTruthy();
-});
-  
-test('renders TextField', () => {
+  });
+
+  test('renders Browse Beers button and navigates', () => {
     renderWithProviders(<App />);
-    expect(screen.getByLabelText('What can I get ya?')).toBeTruthy();
-});
-  
-test('renders beer logo', () => {
-    renderWithProviders(<App />);
-    expect(screen.getByAltText('Beer logo')).toBeTruthy();
+    const browseBtn = screen.getByText('Browse Beers');
+    expect(browseBtn).toBeTruthy();
+    fireEvent.click(browseBtn);
+    expect(mockNavigate).toHaveBeenCalledWith('/my-beers');
+  });
+
+  test('renders View Analytics disabled when list is empty', () => {
+    renderWithProviders(<App />, {
+      preloadedState: {
+        myBeers: {
+          myList: [],
+          searchResults: [],
+          selectedBeerId: null,
+          searchStatus: 'idle',
+          detailStatus: 'idle',
+          error: null,
+        }
+      }
+    });
+    const analyticsBtn = screen.getByText('View Analytics (Add beers first)');
+    expect(analyticsBtn).toBeDisabled();
+  });
+
+  test('renders View Analytics enabled and navigates when list has items', () => {
+    renderWithProviders(<App />, {
+      preloadedState: {
+        myBeers: {
+          myList: [{ id: 1, name: 'Test' } as any],
+          searchResults: [],
+          selectedBeerId: null,
+          searchStatus: 'idle',
+          detailStatus: 'idle',
+          error: null,
+        }
+      }
+    });
+    const analyticsBtn = screen.getByText('View Analytics (1)');
+    expect(analyticsBtn).not.toBeDisabled();
+    fireEvent.click(analyticsBtn);
+    expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+  });
 });

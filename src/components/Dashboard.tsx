@@ -8,8 +8,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Slide from '@mui/material/Slide';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { clearBeerData } from '../features/beerSlice';
+import { useAppSelector } from '../hooks';
 import BeerTable from './BeerTable';
 import BeerMug from '../assets/beer-android-chrome-192x192.png';
 import { ThemeProvider, createTheme } from '@mui/material';
@@ -35,13 +34,10 @@ const theme = createTheme({
  */
 export default function Dashboard() {
   const navigate = useNavigate();
-  const currentBeers = useAppSelector((state) => state.beers.value);
   const myList = useAppSelector((state) => state.myBeers.myList);
-  const dispatch = useAppDispatch();
+  const currentBeers = myList.length;
 
-  // Handle navigation when user clicks on mug home button, clears data
   function navigateHome() {
-    dispatch(clearBeerData());
     navigate('/');
   }
 
@@ -49,7 +45,7 @@ export default function Dashboard() {
     if(currentBeers === 0) {
       navigateHome();
     }
-  }, [currentBeers])
+  }, [currentBeers, navigate])
 
   const trigger = useScrollTrigger({
     target: window,
@@ -67,6 +63,7 @@ export default function Dashboard() {
                 onClick={navigateHome}
                 className="toolbar-logo"
                 alt="Beer logo"
+                style={{ cursor: 'pointer' }}
               />
               <Typography variant="h6" component="div">
                 Analytics on your {currentBeers} brews
@@ -80,19 +77,13 @@ export default function Dashboard() {
             <BeerTable />
             
             <Box sx={{ mt: 4, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-              {/* Existing Charts */}
+              {/* Charts */}
               <ABVChart />
               <IBUDoughnut />
-
-              {/* New Punk API Charts */}
-              {myList.length > 0 && (
-                <>
-                  <ABVvsIBUScatter />
-                  <StyleDoughnut />
-                  <TopHopsChart />
-                  <ColorSpectrumChart />
-                </>
-              )}
+              <ABVvsIBUScatter />
+              <StyleDoughnut />
+              <TopHopsChart />
+              <ColorSpectrumChart />
             </Box>
           </Box>
         </Container>

@@ -38,7 +38,7 @@ const theme = createTheme({
 /**
  * Renders a labelled stat box for the beer detail stats row.
  */
-function StatBox({ label, value }: { label: string; value: string | number | null }) {
+function StatBox({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (value == null) return null;
   return (
     <Box

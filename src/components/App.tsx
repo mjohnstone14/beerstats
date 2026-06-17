@@ -1,109 +1,73 @@
-import { useState } from 'react';
 import beer from '../assets/beer-android-chrome-512x512.png';
 import '../App.css';
-import { Button, InputAdornment, TextField } from '@mui/material';
+import { Button, Box } from '@mui/material';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { clearBeerData, fetchBeerData, setBeerAmount } from '../features/beerSlice';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '../hooks';
 
 /**
  * The main entry point of the application
- * and the home page. It takes a user's input
- * and triggers a dispatch to fetch requested data.
+ * and the home page.
  */
 function App() {
-  const [numError, setNumError] = useState(false);
-  const [dispatchAllowed, setDispatchAllowed] = useState(false);
-  const [errorText, setErrorText] = useState('');
   const navigate = useNavigate();
-  const currentBeers = useAppSelector((state) => state.beers.value);
-  const dispatch = useAppDispatch();
-
-  const dispatchBeers = () => {
-    if (!numError && dispatchAllowed === true) {
-      dispatch(fetchBeerData(currentBeers));
-      navigate('/dashboard');
-    }
-  };
-
-  /**
-   * Determine if the user provided a number
-   * instead of a string, then set an
-   * error message to indicate this.
-   *
-   * @param value string user input event
-   */
-  const handleNumberChange = (value: string) => {
-    const numBeers = Number(value);
-
-    if (Number.isNaN(numBeers)) {
-      setNumError(true);
-      setErrorText('Sorry pal, numbers only');
-    } else if (numBeers > 100) {
-      setNumError(true);
-      setErrorText('Slow down friend, I can only carry a hundred at most!');
-    } else if (numBeers < 2) {
-      setNumError(true);
-      setErrorText('You need at least two beers to compare!');
-    } else {
-      setNumError(false);
-      setErrorText('');
-      setDispatchAllowed(true);
-      dispatch(clearBeerData());
-      dispatch(setBeerAmount(numBeers));
-    }
-  };
+  const myList = useAppSelector((state) => state.myBeers.myList);
 
   return (
     <>
       <h1>Welcome friend, to Beer Stats!</h1>
-      <h2>To begin, specify your desired amount and then press the mug (or press enter).</h2>
-      <div className="card">
-        <TextField
-          label="What can I get ya?"
-          InputProps={{
-            endAdornment: <InputAdornment position="end">beers</InputAdornment>,
-          }}
-          onChange={(e) => handleNumberChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              dispatchBeers();
-            }
-          }}
-          error={numError}
-          helperText={errorText}
-        />
-      </div>
+      <h2>Start by exploring and saving beers, then check out your personal analytics.</h2>
+      
       <div>
-        <a onClick={dispatchBeers} target="_blank">
-          <img src={beer} className="logo" alt="Beer logo" />
-        </a>
+        <img src={beer} className="logo" alt="Beer logo" />
       </div>
-      <div>
+
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 4 }}>
         <Button
-          variant="outlined"
+          variant="contained"
           startIcon={<SportsBarIcon />}
           onClick={() => navigate('/my-beers')}
           sx={{
-            mt: 1,
+            background: 'linear-gradient(135deg,#C96E12,#e88c2a)',
+            color: '#fff',
+            fontWeight: 700,
+            borderRadius: 2,
+            textTransform: 'none',
+            fontSize: '1.1rem',
+            px: 4,
+            py: 1.5,
+            '&:hover': {
+              background: 'linear-gradient(135deg,#a85a0e,#C96E12)',
+            },
+          }}
+        >
+          Browse Beers
+        </Button>
+
+        <Button
+          variant="outlined"
+          startIcon={<BarChartIcon />}
+          onClick={() => navigate('/dashboard')}
+          disabled={myList.length === 0}
+          sx={{
             borderColor: '#C96E12',
             color: '#C96E12',
             fontWeight: 700,
             borderRadius: 2,
             textTransform: 'none',
-            fontSize: '1rem',
-            px: 3,
-            py: 1,
+            fontSize: '1.1rem',
+            px: 4,
+            py: 1.5,
             '&:hover': {
               background: 'rgba(201,110,18,0.1)',
               borderColor: '#a85a0e',
             },
           }}
         >
-          Browse My Beers
+          {myList.length > 0 ? `View Analytics (${myList.length})` : 'View Analytics (Add beers first)'}
         </Button>
-      </div>
+      </Box>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Paper, Box } from "@mui/material";
+import { Paper } from "@mui/material";
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -7,6 +7,7 @@ import 'ag-grid-community/styles/ag-theme-material.css';
 
 import { useAppSelector } from "../hooks";
 import { Data, BeerObject } from "../interfaces/base";
+import { beerToBeerObject } from "../features/myBeersSlice";
 
 /**
  * Styled AG Grid table that shows details on each beer and relevant information
@@ -16,10 +17,10 @@ import { Data, BeerObject } from "../interfaces/base";
  * @returns a table showing the data the user reuquested
  */
 export default function BeerTable() {
-  const currentData: Array<BeerObject> = useAppSelector((state) => state.beers.data);
+  const currentData = useAppSelector((state) => state.myBeers.myList);
 
   const beerData: Data[] = useMemo(() => {
-    return currentData.map((beer: BeerObject) => ({
+    return currentData.map(beerToBeerObject).map((beer: BeerObject) => ({
       name: beer.name,
       style: beer.style,
       ibu: beer.ibu,

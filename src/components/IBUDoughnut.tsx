@@ -4,6 +4,7 @@ import { Card, Box } from '@mui/material';
 import { useAppSelector } from '../hooks';
 import { getRGBAArrayForSRM } from '../helpers/InterpolateColors';
 import { BeerObject } from '../interfaces/base';
+import { beerToBeerObject } from '../features/myBeersSlice';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -13,7 +14,8 @@ ChartJS.register(ArcElement, Tooltip, Legend);
  * and their IBU
  */
 export default function IBUDoughnut() {
-  const currentData: Array<BeerObject> = useAppSelector((state) => state.beers.data);
+  const rawData = useAppSelector((state) => state.myBeers.myList);
+  const currentData = rawData.map(beerToBeerObject);
 
   function createData() {
     const currentLabels: string[] = [];

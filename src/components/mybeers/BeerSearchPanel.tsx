@@ -10,7 +10,6 @@ interface BeerSearchPanelProps {
   results: UnifiedBeer[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
-  listIds: Set<string | number>;
   onAdd: (beer: UnifiedBeer) => void;
   onViewDetail: (beer: UnifiedBeer) => void;
   selectedStyle: string;
@@ -54,7 +53,6 @@ export default function BeerSearchPanel({
   results,
   status,
   error,
-  listIds,
   onAdd,
   onViewDetail,
   selectedStyle,

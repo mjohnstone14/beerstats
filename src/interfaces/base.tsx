@@ -49,12 +49,20 @@ export interface PunkBeer {
   tagline: string;
   first_brewed: string;
   description: string;
-  image: string | null;
+  image_url: string | null;
   abv: number;
   ibu: number | null;
   ebc: number | null;
   srm: number | null;
   ph: number | null;
+  attenuation_level?: number;
+  volume?: { value: number; unit: string };
+  boil_volume?: { value: number; unit: string };
+  method?: {
+    mash_temp: { temp: { value: number; unit: string }; duration: number | null }[];
+    fermentation: { temp: { value: number; unit: string } };
+    twist: string | null;
+  };
   ingredients: {
     malt: PunkIngredient[];
     hops: PunkIngredient[];
@@ -62,6 +70,7 @@ export interface PunkBeer {
   };
   food_pairing: string[];
   brewers_tips: string;
+  contributed_by?: string;
 }
   
 export interface Data {

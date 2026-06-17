@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AppBar, Toolbar, Typography, Container, Box, Tooltip } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SportsBarIcon from '@mui/icons-material/SportsBar';
@@ -13,10 +13,8 @@ import {
   clearMyList,
   setSelectedBeerId,
   clearSearch,
-  beerToBeerObject,
   getBeerStyle,
 } from '../features/myBeersSlice';
-import { setBeerAmount, clearBeerData } from '../features/beerSlice';
 import { UnifiedBeer } from '../interfaces/base';
 import BeerMug from '../assets/beer-android-chrome-192x192.png';
 import BeerSearchPanel from './mybeers/BeerSearchPanel';
@@ -44,7 +42,6 @@ export default function MyBeers() {
   const [query, setQuery] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('All');
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const listIds = new Set(myList.map((b) => b.id));
 
   // Compute available styles and filtered results
   const availableStyles = Array.from(
@@ -81,13 +78,9 @@ export default function MyBeers() {
     navigate(`/beer/${beer.id}`);
   };
 
-  /** Map the personal list into BeerObject[], push to the existing beerSlice, go to dashboard. */
+  /** Navigate to the dashboard. */
   const handleViewAnalytics = () => {
     if (myList.length < 2) return;
-    const mapped = myList.map((b) => beerToBeerObject(b));
-    dispatch(clearBeerData());
-    dispatch(setBeerAmount(mapped.length));
-    dispatch({ type: 'data/fetchBeerData/fulfilled', payload: mapped });
     navigate('/dashboard');
   };
 
@@ -128,7 +121,6 @@ export default function MyBeers() {
             results={filteredResults}
             status={searchStatus}
             error={error}
-            listIds={listIds}
             onAdd={handleAdd}
             onViewDetail={handleViewDetail}
             selectedStyle={selectedStyle}
