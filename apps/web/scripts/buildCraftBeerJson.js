@@ -67,7 +67,7 @@ async function buildData() {
     unifiedBeers.push(unified);
   }
 
-  const outPath = path.join(__dirname, '..', 'src', 'data', 'craftBeers.json');
+  const outPath = path.resolve(__dirname, '..', '..', 'beerapi', 'src', 'assets', 'craftBeers.json');
   fs.writeFileSync(outPath, JSON.stringify(unifiedBeers, null, 2));
   console.log(`Successfully wrote ${unifiedBeers.length} beers to ${outPath}`);
 }

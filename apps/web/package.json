@@ -1,0 +1,20 @@
+{
+  "name": "@beerstats/web",
+  "private": true,
+  "version": "0.0.0",
+  "homepage": "/beerstats/#",
+  "scripts": {
+    "build:data": "node scripts/buildCraftBeerJson.js",
+    "dev": "npm run build:data && vite",
+    "prebuild": "npm run build:data",
+    "pretest": "npm run build:data",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "@beerstats/shared-types": "*"
+  }
+}

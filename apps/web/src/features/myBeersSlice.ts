@@ -2,9 +2,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { PunkBeer, UnifiedBeer } from '../interfaces/base';
 import { BeerObject } from '../interfaces/base';
-
-const PUNK_API_BASE = 'https://punkapi-alxiw.amvera.io/v3';
-
 // ── Helpers ──────────────────────────────────────────────────────
 
 const STYLE_KEYWORDS = [
@@ -92,52 +89,34 @@ export function beerToBeerObject(beer: UnifiedBeer): BeerObject {
 // ── Thunks ───────────────────────────────────────────────────────
 
 /**
- * Search beers by name combining the Punk API and local Craft Beers data.
+ * Search beers by name calling the backend API service.
  */
 export const searchAllBeers = createAsyncThunk(
   'myBeers/searchAllBeers',
-  async (query: string) => {
-    const q = query.trim().toLowerCase();
-
-    // 1. Fetch from Punk API
-    const params: Record<string, string | number> = { page: 1, per_page: 80 };
-    if (q) params.beer_name = q;
-    
-    let punkBeers: UnifiedBeer[] = [];
-    try {
-      const response = await axios.get<PunkBeer[]>(`${PUNK_API_BASE}/beers`, { params });
-      punkBeers = response.data.map(punkToUnified);
-    } catch (e) {
-      console.warn('Punk API failed, falling back to local only', e);
-    }
-
-    return punkBeers;
+  async (query: string, { signal }) => {
+    const response = await axios.get<UnifiedBeer[]>('/api/beers', {
+      params: { search: query },
+      signal,
+    });
+    return response.data;
   }
 );
 
 /**
- * Load a single beer by ID (used by the BeerDetail page).
- * Checks local first, then hits Punk API if it's a numeric ID.
+ * Load a single beer by ID calling the backend API service.
  */
 export const loadBeerById = createAsyncThunk(
   'myBeers/loadBeerById',
-  async (id: string | number) => {
+  async (id: string | number, { signal }) => {
     try {
-      const response = await axios.get<any>(`${PUNK_API_BASE}/beers/${id}`);
-      // The v3 API returns a single object for /beers/:id, but we handle both object and array to be safe
-      const beerData = Array.isArray(response.data) ? response.data[0] : response.data;
-      
-      if (!beerData) {
-        throw new Error("We couldn't find the details for this beer.");
-      }
-      return punkToUnified(beerData);
+      const response = await axios.get<UnifiedBeer>(`/api/beers/${id}`, { signal });
+      return response.data;
     } catch (error: any) {
+      if (axios.isCancel(error)) {
+        throw error;
+      }
       if (error.response && error.response.status === 404) {
         throw new Error("We couldn't find the details for this beer.");
-      }
-      // Preserve our custom error messages
-      if (error.message === "We couldn't find the details for this beer.") {
-        throw error;
       }
       throw new Error("Oops, something went wrong while fetching the beer details.");
     }
@@ -208,6 +187,9 @@ export const myBeersSlice = createSlice({
       state.searchResults = action.payload;
     });
     builder.addCase(searchAllBeers.rejected, (state, action) => {
+      if (action.meta?.aborted) {
+        return;
+      }
       state.searchStatus = 'failed';
       state.error = action.error.message ?? 'Failed to fetch beers';
     });
@@ -224,6 +206,9 @@ export const myBeersSlice = createSlice({
       }
     });
     builder.addCase(loadBeerById.rejected, (state, action) => {
+      if (action.meta?.aborted) {
+        return;
+      }
       state.detailStatus = 'failed';
       state.error = action.error.message ?? 'Failed to load beer';
     });

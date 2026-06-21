@@ -12,6 +12,46 @@ import reducer, {
 } from '../features/myBeersSlice';
 import { UnifiedBeer, PunkBeer } from '../interfaces/base';
 
+jest.mock('axios', () => {
+  const mockCraftBeers = [
+    {
+      id: 'craft-1',
+      source: 'craft',
+      name: "Devil's Cup",
+      brewery: 'SingleCut Beersmiths',
+      style: 'IPA',
+      abv: 6.6,
+      ibu: 66,
+      description: 'Test Devil\'s Cup',
+    }
+  ];
+  return {
+    get: jest.fn().mockImplementation((url, config) => {
+      if (url === '/api/beers') {
+        const query = config?.params?.search?.toLowerCase() || '';
+        const filtered = mockCraftBeers.filter(b => 
+          b.name.toLowerCase().includes(query) || 
+          b.brewery.toLowerCase().includes(query)
+        );
+        return Promise.resolve({ data: filtered });
+      }
+      if (url.startsWith('/api/beers/')) {
+        const id = url.split('/').pop();
+        if (id === 'craft-nonexistent') {
+          return Promise.reject({ response: { status: 404 } });
+        }
+        const beer = mockCraftBeers.find(b => String(b.id) === String(id));
+        if (beer) {
+          return Promise.resolve({ data: beer });
+        }
+        return Promise.reject({ response: { status: 404 } });
+      }
+      return Promise.resolve({ data: [] });
+    }),
+    isCancel: (err: any) => err?.__cancel === true,
+  };
+});
+
 describe('myBeersSlice', () => {
   const initialState = {
     searchResults: [],
@@ -208,6 +248,17 @@ describe('myBeersSlice async thunks (extra reducers)', () => {
     expect(state.error).toBe('Failed to fetch beers');
   });
 
+  it('searchAllBeers.rejected ignores abort action', () => {
+    const action = {
+      type: searchAllBeers.rejected.type,
+      error: { message: 'Aborted' },
+      meta: { aborted: true },
+    };
+    const state = reducer(initialState, action);
+    expect(state.searchStatus).toBe('idle');
+    expect(state.error).toBeNull();
+  });
+
   it('loadBeerById.pending sets loading', () => {
     const action = { type: loadBeerById.pending.type };
     const state = reducer(initialState, action);
@@ -239,5 +290,49 @@ describe('myBeersSlice async thunks (extra reducers)', () => {
     const action = { type: loadBeerById.rejected.type, error: {} };
     const state = reducer(initialState, action);
     expect(state.error).toBe('Failed to load beer');
+  });
+
+  it('loadBeerById.rejected ignores abort action', () => {
+    const action = {
+      type: loadBeerById.rejected.type,
+      error: { message: 'Aborted' },
+      meta: { aborted: true },
+    };
+    const state = reducer(initialState, action);
+    expect(state.detailStatus).toBe('idle');
+    expect(state.error).toBeNull();
+  });
+});
+
+describe('myBeersSlice async thunks direct execution', () => {
+  it('searchAllBeers with query filters craft beers', async () => {
+    const dispatch = jest.fn();
+    const getState = jest.fn();
+    const resultAction = await searchAllBeers("Devil's Cup")(dispatch, getState, undefined);
+    
+    expect(searchAllBeers.fulfilled.match(resultAction)).toBe(true);
+    const payload = resultAction.payload as UnifiedBeer[];
+    const devilsCup = payload.find(b => b.name === "Devil's Cup");
+    expect(devilsCup).toBeDefined();
+    expect(devilsCup?.source).toBe('craft');
+  });
+
+  it('loadBeerById with craft- ID returns local beer', async () => {
+    const dispatch = jest.fn();
+    const getState = jest.fn();
+    const resultAction = await loadBeerById('craft-1')(dispatch, getState, undefined);
+    
+    expect(loadBeerById.fulfilled.match(resultAction)).toBe(true);
+    const payload = resultAction.payload as UnifiedBeer;
+    expect(payload.source).toBe('craft');
+    expect(payload.id).toBe('craft-1');
+  });
+
+  it('loadBeerById with craft- ID throws error if not found', async () => {
+    const dispatch = jest.fn();
+    const getState = jest.fn();
+    const resultAction = await loadBeerById('craft-nonexistent')(dispatch, getState, undefined);
+    
+    expect(loadBeerById.rejected.match(resultAction)).toBe(true);
   });
 });

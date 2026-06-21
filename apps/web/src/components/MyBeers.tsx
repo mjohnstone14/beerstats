@@ -42,6 +42,7 @@ export default function MyBeers() {
   const [query, setQuery] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('All');
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeSearchRef = useRef<any>(null);
 
   // Compute available styles and filtered results
   const availableStyles = Array.from(
@@ -55,8 +56,11 @@ export default function MyBeers() {
 
   // Load initial browse results on mount, clean up on unmount
   useEffect(() => {
-    dispatch(searchAllBeers(''));
+    activeSearchRef.current = dispatch(searchAllBeers(''));
     return () => {
+      if (activeSearchRef.current) {
+        activeSearchRef.current.abort();
+      }
       dispatch(clearSearch());
     };
   }, [dispatch]);
@@ -64,9 +68,21 @@ export default function MyBeers() {
   const handleQueryChange = (value: string) => {
     setQuery(value);
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    if (value.trim() === '') {
+      if (activeSearchRef.current) {
+        activeSearchRef.current.abort();
+      }
+      activeSearchRef.current = dispatch(searchAllBeers(''));
+      return;
+    }
+
     debounceTimer.current = setTimeout(() => {
-      dispatch(searchAllBeers(value));
-    }, 400);
+      if (activeSearchRef.current) {
+        activeSearchRef.current.abort();
+      }
+      activeSearchRef.current = dispatch(searchAllBeers(value));
+    }, 300);
   };
 
   const handleAdd = (beer: UnifiedBeer) => dispatch(addToMyList(beer));
